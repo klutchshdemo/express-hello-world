@@ -8,7 +8,7 @@ app.get("/", (req, res) => res.type('html').send(html));
 function stressMemory({
   chunkSizeMB = 10,
   intervalMs = 100,
-  maxMemoryMB = 1024,
+  maxMemoryMB = 600,
 } = {}) {
   const allocations = [];
   const chunk = Buffer.alloc(chunkSizeMB * 1024 * 1024, 'x');
@@ -57,6 +57,7 @@ function fibonacci(num) {
       const fib = fibonacci(parseInt(f));
       
       console.log(`High CPU function took: ${Number(endTime - startTime) / 1e6} ms`);
+      stressMemory();
       res.send(`Calculation complete: ${calculatedResult}. fib: ${fib}`);
     });
 
@@ -64,8 +65,6 @@ const server = app.listen(port, () => console.log(`Example app listening on port
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
-
-stressMemory();
 
 const html = `
 <!DOCTYPE html>
