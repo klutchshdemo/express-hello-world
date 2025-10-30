@@ -13,13 +13,22 @@ app.get("/", (req, res) => res.type('html').send(html));
       return result;
     }
 
+function fibonacci(num) {
+  if (num <= 1) return num;
+  return fibonacci(num - 1) + fibonacci(num - 2);
+}
+
+
     // Expose this function via an API endpoint in your Node.js application
     app.get('/high-cpu', (req, res) => {
+      const f = req.query.f || 6;  
       const startTime = process.hrtime.bigint();
       const calculatedResult = highCPUFunction();
       const endTime = process.hrtime.bigint();
+      const fib = fibonacci(parseInt(f));
+      
       console.log(`High CPU function took: ${Number(endTime - startTime) / 1e6} ms`);
-      res.send(`Calculation complete: ${calculatedResult}`);
+      res.send(`Calculation complete: ${calculatedResult}. fib: ${fib}`);
     });
 
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
