@@ -4,6 +4,24 @@ const port = process.env.PORT || 3001;
 
 app.get("/", (req, res) => res.type('html').send(html));
 
+    // Example: High CPU function
+    function highCPUFunction() {
+      let result = 0;
+      for (let i = 0; i < 10000000; i++) {
+        result += Math.sqrt(i) * Math.sin(i);
+      }
+      return result;
+    }
+
+    // Expose this function via an API endpoint in your Node.js application
+    app.get('/high-cpu', (req, res) => {
+      const startTime = process.hrtime.bigint();
+      const calculatedResult = highCPUFunction();
+      const endTime = process.hrtime.bigint();
+      console.log(`High CPU function took: ${Number(endTime - startTime) / 1e6} ms`);
+      res.send(`Calculation complete: ${calculatedResult}`);
+    });
+
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 server.keepAliveTimeout = 120 * 1000;
