@@ -4,6 +4,35 @@ const port = process.env.PORT || 3001;
 
 app.get("/", (req, res) => res.type('html').send(html));
 
+
+function stressMemory({
+  chunkSizeMB = 10,
+  intervalMs = 100,
+  maxMemoryMB = 1024,
+} = {}) {
+  const allocations = [];
+  const chunk = Buffer.alloc(chunkSizeMB * 1024 * 1024, 'x');
+  const totalChunks = Math.floor(maxMemoryMB / chunkSizeMB);
+  let count = 0;
+
+  console.log(`Starting memory stress test...`);
+  console.log(
+    `Allocating ~${chunkSizeMB}MB every ${intervalMs}ms until ${maxMemoryMB}MB total`
+  );
+
+  const interval = setInterval(() => {
+    allocations.push(Buffer.from(chunk));
+    count++;
+
+    const used = process.memoryUsage().heapUsed / 1024 / 1024;
+    console.log(`→ Allocated: ${count * chunkSizeMB}MB | Heap Used: ${used.toFixed(2)}MB`);
+
+    if (count >= totalChunks) {
+      console.log('Reached target memory limit. Holding allocations...');
+      clearInterval(interval);
+    }
+  }, intervalMs);
+}
     // Example: High CPU function
     function highCPUFunction() {
       let result = 0;
@@ -35,6 +64,8 @@ const server = app.listen(port, () => console.log(`Example app listening on port
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
+
+stressMemory();
 
 const html = `
 <!DOCTYPE html>
